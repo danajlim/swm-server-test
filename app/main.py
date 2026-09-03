@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app import database
 from app.api_models import CreateTodoRequest, CreateTodoResponse, ListTodoResponse
-from app.exceptions import InvalidTodoTitleError
+from app.exceptions import InvalidTodoDescriptionLengthError, InvalidTodoTitleError
 from app.repository import TodoRepository
 from app.service import TodoService
 from app.settings import Settings
@@ -33,6 +33,9 @@ def get_todo_service(
 async def handle_invalid_todo_title(_request: Request, error: InvalidTodoTitleError):
     return JSONResponse(status_code=422, content={"detail": str(error)})
 
+@app.exception_handler(InvalidTodoTitleError)
+async def handle_invalid_todo_title(_request: Request, error: InvalidTodoDescriptionLengthError):
+    return JSONResponse(status_code=422, content={"detail": str(error)})
 
 @app.get("/")
 async def health_check():

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from app.exceptions import InvalidTodoTitleError
+from app.exceptions import InvalidTodoDescriptionLengthError, InvalidTodoTitleError
 from app.models import Todo, TodoValue
 from app.repository import TodoRepository
 from app.service import TodoService
@@ -41,4 +41,14 @@ class TestTodoService(unittest.TestCase):
             self.todo_service.create(todo_value)
 
         self.assertEqual(str(context.exception), "Title Field Required")
+        self.repository.create.assert_not_called()
+
+    # 예외: 내용이 200자를 넘으면 전용 예외를 발생시키고 저장하지 않는다.
+    def test_create_todo_service_with_long_description(self):
+        todo_value = TodoValue(title="hello", description="hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhdfhajksfaosidjfsifjaiosdjfaoisdfjoasidfjoiasjfioasjfoasijfasdifojaosfiapsdjfasofjaohhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhdfhajksfaosidjfsifjaiosdjfaoisdfjoasidfjoiasjfioasjfoasijfasdifojaosfiapsdjfasofjaosifjaosfjaoisfjoasdjfsifjaosfjaoisfjoasdjf", completed=False)
+    
+        with self.assertRaises(InvalidTodoDescriptionLengthError) as context:
+            self.todo_service.create(todo_value)
+    
+        self.assertEqual(str(context.exception), "설명은 200자 이내로 입력해주세요.")
         self.repository.create.assert_not_called()
