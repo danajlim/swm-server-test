@@ -59,3 +59,18 @@ class TestTodoRepository(unittest.TestCase):
         self.assertEqual(todo.title, "Test Todo")
         self.assertEqual(todo.description, "This is a test todo item")
         self.assertFalse(todo.completed)
+
+    # 성공: 제목과 완료상태에 따라 Todo 목록을 조회한다.
+    def test_todos_by_title_and_status_repository(self):
+        todo_create1 = TodoValue(
+            title="Test Todo 1", description="Description 1", completed=True
+        )
+        todo_create2 = TodoValue(
+            title="Test Todo 1", description="Description 1", completed=False
+        )
+        
+        self.todo_repository.create(todo_create1)
+        self.todo_repository.create(todo_create2)
+
+        todos = self.todo_repository.find_by_title_and_status(title="Test Todo 1",completed=False)
+        self.assertEqual(len(todos),1)

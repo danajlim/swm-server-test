@@ -20,3 +20,8 @@ class TodoRepository:
             session.commit()
             session.refresh(todo)
             return todo
+
+    def find_by_title_and_status(self, title: str = "", completed: bool = False) -> List[Todo]:
+        with Session(self.engine) as session:
+            todos = session.exec(select(Todo).title(title).completed(completed)).all()
+            return todos

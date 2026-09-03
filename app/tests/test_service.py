@@ -52,3 +52,20 @@ class TestTodoService(unittest.TestCase):
     
         self.assertEqual(str(context.exception), "설명은 200자 이내로 입력해주세요.")
         self.repository.create.assert_not_called()
+
+    # 실패: Todo를 저장할때 제목이 중복+완료되지 않은 상태이면 예외를 발생시키고 저장하지 않는다. 
+    def test_create_todo_service_with_long_description(self):
+        todo_value = TodoValue(title="hello", description="hi", completed=False)
+        todo_value_2 = TodoValue(title="hello", description="hi", completed=False)
+    
+        with self.assertRaises(InvalidTodoDescriptionLengthError) as context:
+            self.todo_service.create(todo_value)
+            self.todo_service.create(todo_value_2)
+    
+        self.assertEqual(str(context.exception), "Duplicate Title Field")
+        self.repository.create.assert_not_called()
+
+    # 성공: Todo를 저장할때 제목이 중복+완료된 상태이면 저장한다. 
+        todo_value = TodoValue(title="hello", description="hi", completed=True)
+        todo_value_2 = TodoValue(title="hello", description="hi", completed=False)
+    
