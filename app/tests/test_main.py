@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
 
-from app.exceptions import InvalidTodoTitleError
+from app.exceptions import InvalidTodoDescriptionLengthError, InvalidTodoTitleError
 from app.main import app, get_todo_service
 from app.models import Todo, TodoValue
 from app.service import TodoService
@@ -69,6 +69,18 @@ class TestTodoAPI(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"detail": "Title Field Required"})
+
+    # 예외: 설명이 200자 초과할때 422 상태와 설명 필수 오류를 응답한다.
+    def test_create_todo_api_with_long_description(self):
+        self.todo_service.create.side_effect = InvalidTodoDescriptionLengthError()
+
+        response = self.client.post(
+            "/api/todos/",
+            json={"data": {"title": "hello", "description": "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhdfhajksfaosidjfsifjaiosdjfaoisdfjoasidfjoiasjfioasjfoasijfasdifojaosfiapsdjfasofjaohhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhdfhajksfaosidjfsifjaiosdjfaoisdfjoasidfjoiasjfioasjfoasijfasdifojaosfiapsdjfasofjaosifjaosfjaoisfjoasdjfsifjaosfjaoisfjoasdjf", "completed": False}},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json(), {"detail": "설명은 200자 이내로 입력해주세요."})
 
     # 성공: Todo가 없으면 빈 목록을 응답한다.
     def test_list_todos_api(self):
